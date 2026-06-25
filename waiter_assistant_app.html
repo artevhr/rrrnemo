@@ -1,0 +1,384 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:15px;color:var(--color-text-primary);background:transparent}
+.app{max-width:420px;margin:0 auto;padding:8px}
+.tab-bar{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:12px;gap:4px}
+.tab{flex:1;padding:8px 4px;text-align:center;cursor:pointer;font-size:13px;color:var(--color-text-secondary);border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.screen{display:none}.screen.active{display:block}
+
+.section-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px}
+
+.table-setup{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;margin-bottom:10px}
+.count-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.count-btn{width:32px;height:32px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);font-size:18px;display:flex;align-items:center;justify-content:center}
+.count-num{font-size:20px;font-weight:500;min-width:28px;text-align:center}
+.guests-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.guest-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 4px;text-align:center;cursor:pointer;background:var(--color-background-secondary);transition:all .15s;position:relative}
+.guest-card.male{border-color:#378ADD;background:#E6F1FB}
+.guest-card.female{border-color:#D4537E;background:#FBEAF0}
+.guest-icon{font-size:18px;margin-bottom:2px}
+.guest-num{font-size:11px;color:var(--color-text-secondary)}
+.guest-gender{font-size:10px;margin-top:2px}
+.guest-card.male .guest-gender{color:#185FA5}
+.guest-card.female .guest-gender{color:#993556}
+
+.order-area{margin-bottom:10px}
+.guest-order-row{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px;margin-bottom:6px}
+.guest-header{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.guest-badge{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.badge-m{background:#E6F1FB;color:#185FA5}
+.badge-f{background:#FBEAF0;color:#993556}
+.badge-n{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.guest-label{font-size:13px;font-weight:500}
+
+.input-wrap{position:relative}
+.order-input{width:100%;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;font-family:var(--font-sans);outline:none}
+.order-input:focus{border-color:#378ADD;box-shadow:0 0 0 2px #E6F1FB}
+.suggestions{position:absolute;top:100%;left:0;right:0;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);z-index:100;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.sug-item{padding:8px 10px;cursor:pointer;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+.sug-item:last-child{border-bottom:none}
+.sug-item:hover{background:var(--color-background-secondary)}
+.sug-category{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:1px 6px;border-radius:8px}
+.ordered-items{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.ordered-tag{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:3px 8px;font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;transition:background .15s}
+.ordered-tag:hover{background:#E6F1FB}
+.tag-remove{color:var(--color-text-secondary);font-size:14px;line-height:1}
+
+.info-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.info-card{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:16px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto}
+.info-name{font-size:16px;font-weight:500;margin-bottom:4px}
+.info-cat{font-size:12px;color:var(--color-text-secondary);margin-bottom:10px}
+.info-row{font-size:13px;margin-bottom:6px;line-height:1.5}
+.info-label{color:var(--color-text-secondary);font-size:12px;margin-bottom:2px}
+.close-btn{margin-top:12px;width:100%;padding:8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;font-size:14px}
+
+.rec-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px;margin-bottom:8px}
+.rec-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.rec-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.rec-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;margin-bottom:6px}
+.tag-hot{background:#FAECE7;color:#993C1D}
+.tag-cocktail{background:#EEEDFE;color:#3C3489}
+.tag-fish{background:#E1F5EE;color:#0F6E56}
+.tag-salad{background:#EAF3DE;color:#3B6D11}
+.tag-alcohol{background:#FAEEDA;color:#854F0B}
+
+.cat-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.cat-btn{padding:5px 10px;border:0.5px solid var(--color-border-secondary);border-radius:20px;font-size:12px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.cat-btn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+
+.summary-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:12px;margin-bottom:10px}
+.summary-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.summary-row:last-child{border-bottom:none;font-weight:500}
+.clear-btn{width:100%;padding:9px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:var(--color-text-secondary);cursor:pointer;font-size:14px;margin-top:8px}
+</style>
+
+<div class="app">
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('order')"><i class="ti ti-clipboard-list" aria-hidden="true"></i> заказ</div>
+    <div class="tab" onclick="switchTab('recs')"><i class="ti ti-star" aria-hidden="true"></i> рекомендации</div>
+    <div class="tab" onclick="switchTab('summary')"><i class="ti ti-receipt" aria-hidden="true"></i> итог</div>
+  </div>
+
+  <div id="screen-order" class="screen active">
+    <div class="table-setup">
+      <div class="count-row">
+        <span style="font-size:13px;color:var(--color-text-secondary)">Гостей:</span>
+        <button class="count-btn" onclick="changeCount(-1)">−</button>
+        <span class="count-num" id="count-disp">2</span>
+        <button class="count-btn" onclick="changeCount(1)">+</button>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">нажми на гостя, чтобы выбрать пол:</div>
+      <div class="guests-grid" id="guests-grid"></div>
+    </div>
+
+    <div class="order-area" id="order-area"></div>
+  </div>
+
+  <div id="screen-recs" class="screen">
+    <div class="cat-filter" id="cat-filter"></div>
+    <div id="recs-list"></div>
+  </div>
+
+  <div id="screen-summary" class="screen">
+    <div id="summary-content"></div>
+    <button class="clear-btn" onclick="clearAll()">очистить заказ</button>
+  </div>
+</div>
+
+<div class="info-modal" id="info-modal" style="display:none" onclick="closeInfo(event)">
+  <div class="info-card" id="info-card"></div>
+</div>
+
+<script>
+const MENU = [
+  {n:'Таптых',cat:'Салаты',desc:'Сытный салат с копчёной грудинкой (бекон) и сырным соусом. Один из топ-3 для рекомендации.',ingr:'копчёная грудинка, сырный соус, листья салата'},
+  {n:'Тай Фенг',cat:'Салаты',desc:'Острый салат с курицей и апельсином.',ingr:'курица, апельсин, острый соус, зелень'},
+  {n:'Таласса',cat:'Салаты',desc:'С сёмгой и крем-сыром, для любителей рыбы.',ingr:'сёмга, крем-сыр, зелень'},
+  {n:'Цезарь с курицей',cat:'Салаты',desc:'Классика. Всегда популярен.',ingr:'курица, соус цезарь, пармезан, гренки, листья романо'},
+  {n:'Солянка',cat:'Супы',desc:'Обязательно подавать сметану.',ingr:'мясная солянка, сметана, лимон, маслины'},
+  {n:'Суп-пюре',cat:'Супы',desc:'Лёгкий вариант, можно предложить на ужин.',ingr:'по составу уточнить у шефа'},
+  {n:'Драники',cat:'Горячие закуски',desc:'Используем полуфабрикаты (гостю не говорить, но если спросят — честно).',ingr:'картофельные драники'},
+  {n:'Стейк из сёмги',cat:'Рыба',desc:'Самый популярный рыбный вариант. Сливочно-шпинатный соус.',ingr:'сёмга, сливочно-шпинатный соус'},
+  {n:'Судак',cat:'Рыба',desc:'Более лёгкий вариант, запечённый с овощами.',ingr:'судак, запечённые овощи'},
+  {n:'Стейк Калифорния',cat:'Горячие (мясо)',desc:'Самый сытный, классика. Готовится medium well. Если другая прожарка — указать в модификаторе!',ingr:'говядина, соус'},
+  {n:'Бефстроганов',cat:'Горячие (мясо)',desc:'Нежный, с грибным соусом.',ingr:'говядина, грибной соус, сливки'},
+  {n:'Свиной ошеек',cat:'Горячие (мясо)',desc:'Сочный, с необычным соусом.',ingr:'свиной ошеек, фирменный соус'},
+  {n:'Куриная грудка с овощами',cat:'Горячие (мясо)',desc:'Важно объяснять гостю: это как рагу, грудка тушится в сливках и вине — не сухой кусок мяса.',ingr:'куриная грудка, сливки, вино, овощи'},
+  {n:'Тар-тар из лосося',cat:'Холодные закуски',desc:'Есть кедровые орехи — предупреждать об аллергене!',ingr:'лосось, кедровые орехи (!), каперсы, соус'},
+  {n:'Северное золото',cat:'Паста/лазанья',desc:'Премиальное блюдо с икрой.',ingr:'паста, икра, сливочный соус'},
+  {n:'Миланская',cat:'Паста/лазанья',desc:'Для любителей морепродуктов, островатая.',ingr:'паста, морепродукты, острый соус'},
+  {n:'Флорентийская',cat:'Паста/лазанья',desc:'Бюджетный, сытный вариант.',ingr:'паста, шпинат, сливочный соус'},
+  {n:'Парфюмер',cat:'Коктейли',desc:'Крепкий, кисло-сладкий. Подаётся в олд фешн.',ingr:'джин, лилле, ликёр бузина, сироп Роза, сок лимона'},
+  {n:'Голубая фея',cat:'Коктейли',desc:'Крепкий, анисовый (за счёт абсента). Подаётся в тумблере.',ingr:'абсент, белый ром, белая текила, водка, сиропы Дыня и Кюрасау Блю, сок лимона'},
+  {n:'Пина колада',cat:'Коктейли',desc:'Сладкий. Подаётся в харрикейне.',ingr:'ром белый, сироп кокос, сливки, ананасовый сок'},
+  {n:'Адская суббота',cat:'Коктейли',desc:'Мятно-анисовый. Подаётся в олд фешн.',ingr:'джин, Рикар, ликёр мята, ананасовый сок, сок лайма'},
+  {n:'Кайпиринья',cat:'Коктейли',desc:'Крепкий, горьковатый, цитрусовый. Олд фешн.',ingr:'кашаса, лайм, сахар'},
+  {n:'Негрони',cat:'Коктейли',desc:'Цитрусовый с горчинкой. Олд фешн.',ingr:'джин, кампари, красный вермут'},
+  {n:'Сингапур слинг',cat:'Коктейли',desc:'Тропический. Харрикейн.',ingr:'джин, Куантро, Бенедиктин, вишня, ананасовый сок, сок лайма, сироп Гренадин'},
+  {n:'Зомби',cat:'Коктейли',desc:'Крепкий, цитрусовый, тропический. Тумблер.',ingr:'ром белый/тёмный/пряный, ананасовый сок, сок лайма, сироп Маракуйа'},
+  {n:'Лонг Айсленд Айс Ти',cat:'Коктейли',desc:'Очень крепкий. Тумблер.',ingr:'джин, белая текила, белый ром, водка, Куантро, сок лимона, кола'},
+  {n:'Дайкири',cat:'Коктейли',desc:'Кисло-сладкий, цитрусовый. Коктейльная рюмка.',ingr:'ром белый, сок лайма, сахарный сироп'},
+  {n:'Текила Санрайз',cat:'Коктейли',desc:'Кисло-сладкий. Тумблер.',ingr:'текила, апельсиновый сок, сироп Гренадин'},
+  {n:'Виски Сауэр',cat:'Коктейли',desc:'Кисловатый. Олд фешн.',ingr:'виски (бурбон), сок лайма, сахарный сироп'},
+  {n:'Космополитан',cat:'Коктейли',desc:'Кисловатый, клюквенный. Коктейльная рюмка.',ingr:'водка, Куантро, сок лайма, клюквенный морс'},
+  {n:'Апероль Сприц',cat:'Коктейли',desc:'Лёгкий, сладковатый с горчинкой. Бокал белого вина.',ingr:'Апероль, просекко, содовая, апельсин'},
+  {n:'Хьюго',cat:'Коктейли',desc:'Цветочный. Бокал белого вина.',ingr:'просекко, сироп бузина, содовая, мята, лайм'},
+  {n:'Маргарита',cat:'Коктейли',desc:'Кисло-сладкий. Бокал Маргарита.',ingr:'текила, апельсиновый ликёр, сок лимона'},
+  {n:'Секс на пляже',cat:'Коктейли',desc:'Кисло-сладкий. Харрикейн.',ingr:'водка Абсолют, персиковый ликёр, апельсиновый сок, клюквенный морс'},
+  {n:'В-52',cat:'Коктейли',desc:'Сливочно-кофейный. Шот, поджигается.',ingr:'Калуа, сливочный ликёр, Куантро — слоями'},
+  {n:'Белый русский',cat:'Коктейли',desc:'Кофейно-сливочный. Олд фешн.',ingr:'водка, кофейный ликёр, сливки'},
+  {n:'Мартини Фиеро Тоник',cat:'Коктейли',desc:'Сладковатый с горчинкой. Бокал белого вина.',ingr:'Мартини Фиеро, тоник, апельсин'},
+  {n:'Хемингуэй Спешл',cat:'Коктейли',desc:'Кисло-сладкий. Коктейльная рюмка.',ingr:'белый ром, Мараскино, грейпфрутовый сок, сок лайма'},
+  {n:'Лафроиг 10 лет',cat:'Виски',desc:'Односолодовый скотч. Торфяной аромат, морские ноты. Рокс/олд фешн.',ingr:'100% ячмень, Айла, Шотландия'},
+  {n:'Чивас Ригал 12 лет',cat:'Виски',desc:'Купажированный скотч. Рокс.',ingr:'купаж солодового виски, Шотландия'},
+  {n:'Джеймисон',cat:'Виски',desc:'Купажированный айриш. Рокс.',ingr:'ячмень, кукуруза, Ирландия'},
+  {n:'Джек Дэниэлс',cat:'Виски',desc:'Теннеси бурбон. Рокс.',ingr:'кукуруза, ячмень, США (Теннеси)'},
+  {n:'Джим Бим',cat:'Виски',desc:'Бурбон. Рокс.',ingr:'кукуруза, США'},
+  {n:'Блэк Лейбл 12 лет',cat:'Виски',desc:'Купажированный скотч. Рокс.',ingr:'купаж, Шотландия'},
+  {n:'Макалан 12 лет',cat:'Виски',desc:'Односолодовый скотч. Рокс.',ingr:'100% ячмень, Шотландия'},
+  {n:'Ардбег 10 лет',cat:'Виски',desc:'Односолодовый скотч. Рокс.',ingr:'100% ячмень, Айла'},
+  {n:'Мэйкерс Марк',cat:'Виски',desc:'Бурбон. Рокс.',ingr:'пшеница, кукуруза, США'},
+  {n:'Бакарди Карта Бланка',cat:'Ром',desc:'Кубинский белый ром. Для коктейлей. Рокс.',ingr:'патока сахарного тростника, Куба'},
+  {n:'Бакарди Карта Негра',cat:'Ром',desc:'Кубинский тёмный ром (жжёная карамель). Рокс.',ingr:'патока, карамель, Куба'},
+  {n:'Бумбу',cat:'Ром',desc:'Выдержанный ром 16 лет. Рокс.',ingr:'сахарный тростник, 16 лет выдержки'},
+  {n:'Гордонс',cat:'Джин',desc:'Английский джин. Рокс.',ingr:'можжевельник, злаки, Англия'},
+  {n:'Хендрикс',cat:'Джин',desc:'Шотландский джин. Рокс.',ingr:'можжевельник, огурец, роза, Шотландия'},
+  {n:'Курвуазье VSOP',cat:'Коньяк',desc:'Коньяк VSOP (выдержка ≥4 лет). Снифтер.',ingr:'виноград, Франция'},
+  {n:'Реми Мартин VSOP',cat:'Коньяк',desc:'Коньяк VSOP. Снифтер.',ingr:'виноград, Франция, Коньяк'},
+  {n:'Хеннесси VS',cat:'Коньяк',desc:'Коньяк VS (выдержка ≥2 лет). Снифтер.',ingr:'виноград, Франция'},
+  {n:'Хеннесси ХО',cat:'Коньяк',desc:'Коньяк ХО (выдержка ≥10 лет). Снифтер.',ingr:'виноград, Франция'},
+  {n:'Олмеко',cat:'Текила',desc:'Белая текила. Шот. Подавать с солью и лаймом.',ingr:'голубая агава, Мексика'},
+  {n:'Дон Хулио Репосадо',cat:'Текила',desc:'Золотая текила (2 мес — 1 год в бочке). Шот.',ingr:'голубая агава, дубовые бочки, Мексика'},
+  {n:'Сябры',cat:'Водка',desc:'Белорусская водка 0.5л. Стопка или шот.',ingr:'злаки, Беларусь'},
+  {n:'Финляндия',cat:'Водка',desc:'Классическая (не клюквенная!), 0.5л. Стопка или шот.',ingr:'ячмень, Финляндия'},
+  {n:'Кока-кола',cat:'Напитки',desc:'Газированный напиток. Банка, переливать в стакан со льдом.',ingr:'вода, сахар, карамельный краситель, кофеин'},
+  {n:'Сок апельсиновый',cat:'Напитки',desc:'Переливать в кувшин!',ingr:'апельсин'},
+  {n:'Сок ананасовый',cat:'Напитки',desc:'Переливать в кувшин!',ingr:'ананас'},
+  {n:'Вода',cat:'Напитки',desc:'Газированная или негазированная.',ingr:'вода'},
+  {n:'Кампари',cat:'Ликёры/аперитивы',desc:'Итальянский биттер. Хороший аперитив. Рокс. Пить с соком апельсина, грейпфрута, вишни.',ingr:'60 натуральных ингредиентов, кармин (краситель)'},
+  {n:'Амаретто',cat:'Ликёры/аперитивы',desc:'Миндальный ликёр.',ingr:'миндаль, абрикосовые ядрышки'},
+  {n:'Куантро',cat:'Ликёры/аперитивы',desc:'Французский апельсиновый ликёр. Для коктейлей.',ingr:'апельсин, Франция'},
+  {n:'Мартини Бьянко',cat:'Вермуты',desc:'Белый итальянский вермут. Ваниль, цветочные ноты. Рокс. С лимоном.',ingr:'вино, полынь, травы, ваниль'},
+  {n:'Мартини Россо',cat:'Вермуты',desc:'Красный итальянский вермут. Полынь, горчинка. С апельсином.',ingr:'вино, полынь, травы'},
+  {n:'Мартини Экстра Драй',cat:'Вермуты',desc:'Белый сухой вермут. Для коктейлей. С оливками.',ingr:'белое вино, полынь'},
+  {n:'Моет Шандон',cat:'Шампанское',desc:'Французское шампанское. Флют.',ingr:'виноград (Шардоне, Пино Нуар и др.), Шампань, Франция'},
+  {n:'Самбука',cat:'Ликёры/аперитивы',desc:'Итальянский анисовый ликёр. Поджигается, с кофейными зёрнами.',ingr:'анис, спирт, Италия'},
+  {n:'Егермейстер',cat:'Ликёры/аперитивы',desc:'Немецкий травяной биттер. Шот охлаждённый, с апельсином и корицей.',ingr:'травяной ликёр, 56 трав, Германия'},
+];
+
+const CATS = [...new Set(MENU.map(i=>i.cat))];
+
+let guestCount = 2;
+let guestGenders = ['',''];
+let orders = {};
+let activeInputIdx = null;
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.querySelector('.tab[onclick*="'+t+'"]').classList.add('active');
+  document.getElementById('screen-'+t).classList.add('active');
+  if(t==='recs') renderRecs();
+  if(t==='summary') renderSummary();
+}
+
+function changeCount(d){
+  guestCount = Math.max(1, Math.min(8, guestCount+d));
+  if(guestGenders.length < guestCount) for(let i=guestGenders.length;i<guestCount;i++) guestGenders.push('');
+  document.getElementById('count-disp').textContent = guestCount;
+  renderGuests();
+  renderOrderRows();
+}
+
+function renderGuests(){
+  const g = document.getElementById('guests-grid');
+  g.innerHTML = '';
+  for(let i=0;i<guestCount;i++){
+    const gen = guestGenders[i]||'';
+    const cls = gen==='m'?'male':gen==='f'?'female':'';
+    const icon = gen==='m'?'👨':gen==='f'?'👩':'👤';
+    const label = gen==='m'?'муж.':gen==='f'?'жен.':'—';
+    g.innerHTML += `<div class="guest-card ${cls}" onclick="cycleGender(${i})">
+      <div class="guest-icon">${icon}</div>
+      <div class="guest-num">гость ${i+1}</div>
+      <div class="guest-gender">${label}</div>
+    </div>`;
+  }
+}
+
+function cycleGender(i){
+  const cycle = ['','m','f'];
+  const cur = guestGenders[i]||'';
+  guestGenders[i] = cycle[(cycle.indexOf(cur)+1)%3];
+  renderGuests();
+  renderOrderRows();
+}
+
+function renderOrderRows(){
+  const area = document.getElementById('order-area');
+  area.innerHTML = '';
+  for(let i=0;i<guestCount;i++){
+    const gen = guestGenders[i]||'';
+    const bcls = gen==='m'?'badge-m':gen==='f'?'badge-f':'badge-n';
+    const icon = gen==='m'?'👨':gen==='f'?'👩':'👤';
+    const items = orders[i]||[];
+    const tags = items.map((item,j)=>`<span class="ordered-tag" onclick="showInfo('${item.replace(/'/g,"\\'")}')">
+      ${item} <span class="tag-remove" onclick="removeItem(event,${i},${j})">×</span>
+    </span>`).join('');
+    area.innerHTML += `<div class="guest-order-row">
+      <div class="guest-header">
+        <div class="guest-badge ${bcls}">${icon}</div>
+        <span class="guest-label">Гость ${i+1}</span>
+      </div>
+      <div class="input-wrap">
+        <input class="order-input" id="inp-${i}" type="text" placeholder="Начните вводить блюдо..." 
+          oninput="onInput(${i},this.value)" onfocus="setActive(${i})" autocomplete="off">
+        <div class="suggestions" id="sug-${i}" style="display:none"></div>
+      </div>
+      ${items.length?`<div class="ordered-items">${tags}</div>`:''}
+    </div>`;
+  }
+}
+
+function setActive(i){ activeInputIdx = i; }
+
+function onInput(i, val){
+  const sug = document.getElementById('sug-'+i);
+  if(!val.trim()){sug.style.display='none';return;}
+  const q = val.toLowerCase();
+  const matches = MENU.filter(m=>m.n.toLowerCase().includes(q)).slice(0,6);
+  if(!matches.length){sug.style.display='none';return;}
+  sug.innerHTML = matches.map(m=>`<div class="sug-item" onclick="selectItem(${i},'${m.n.replace(/'/g,"\\'")}')">
+    <span>${highlight(m.n,q)}</span>
+    <span class="sug-category">${m.cat}</span>
+  </div>`).join('');
+  sug.style.display='block';
+}
+
+function highlight(name, q){
+  const idx = name.toLowerCase().indexOf(q);
+  if(idx<0) return name;
+  return name.slice(0,idx)+'<b>'+name.slice(idx,idx+q.length)+'</b>'+name.slice(idx+q.length);
+}
+
+function selectItem(i, name){
+  if(!orders[i]) orders[i]=[];
+  if(!orders[i].includes(name)) orders[i].push(name);
+  document.getElementById('inp-'+i).value='';
+  document.getElementById('sug-'+i).style.display='none';
+  renderOrderRows();
+}
+
+function removeItem(e,i,j){
+  e.stopPropagation();
+  orders[i].splice(j,1);
+  renderOrderRows();
+}
+
+function showInfo(name){
+  const item = MENU.find(m=>m.n===name);
+  if(!item) return;
+  const card = document.getElementById('info-card');
+  card.innerHTML = `<div class="info-name">${item.n}</div>
+    <div class="info-cat">${item.cat}</div>
+    <div class="info-label">Состав / описание</div>
+    <div class="info-row">${item.ingr}</div>
+    <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--color-border-tertiary)">
+    <div class="info-label">Рекомендации официанту</div>
+    <div class="info-row">${item.desc}</div></div>
+    <button class="close-btn" onclick="closeInfo()">закрыть</button>`;
+  document.getElementById('info-modal').style.display='flex';
+}
+
+function closeInfo(e){
+  if(!e||e.target===document.getElementById('info-modal'))
+    document.getElementById('info-modal').style.display='none';
+}
+
+const RECS = [
+  {n:'Таптых',cat:'Салаты',tag:'salad',tip:'Топ-3. Сытный, с беконом и сырным соусом.'},
+  {n:'Стейк Калифорния',cat:'Горячие (мясо)',tag:'hot',tip:'Топ продаж. Medium well — помни указать прожарку!'},
+  {n:'Бефстроганов',cat:'Горячие (мясо)',tag:'hot',tip:'Нежный, с грибным соусом. Часто берут.'},
+  {n:'Стейк из сёмги',cat:'Рыба',tag:'fish',tip:'Самый популярный рыбный. Сливочно-шпинатный соус.'},
+  {n:'Северное золото',cat:'Паста',tag:'hot',tip:'Премиум, с икрой. Хорошо для повышения чека.'},
+  {n:'Апероль Сприц',cat:'Коктейли',tag:'cocktail',tip:'Лёгкий аперитив. Хорошо для начала вечера.'},
+  {n:'Негрони',cat:'Коктейли',tag:'cocktail',tip:'Для ценителей горьковатого. С джином.'},
+  {n:'Пина колада',cat:'Коктейли',tag:'cocktail',tip:'Сладкий, некрепкий на вкус. Популярен у женщин.'},
+  {n:'Хьюго',cat:'Коктейли',tag:'cocktail',tip:'Лёгкий, цветочный. Хорошо летом.'},
+];
+const TAG_LABELS = {hot:'горячее',cocktail:'коктейль',fish:'рыба',salad:'салат'};
+const TAG_CLS = {hot:'tag-hot',cocktail:'tag-cocktail',fish:'tag-fish',salad:'tag-salad'};
+let activeRecCat = 'all';
+
+function renderRecs(){
+  const cats = ['all','Салаты','Горячие (мясо)','Рыба','Паста','Коктейли'];
+  const labels = {all:'все','Салаты':'салаты','Горячие (мясо)':'горячее','Рыба':'рыба','Паста':'паста','Коктейли':'коктейли'};
+  document.getElementById('cat-filter').innerHTML = cats.map(c=>
+    `<button class="cat-btn ${activeRecCat===c?'active':''}" onclick="filterRec('${c}')">${labels[c]}</button>`).join('');
+  const list = document.getElementById('recs-list');
+  const filtered = activeRecCat==='all'?RECS:RECS.filter(r=>r.cat===activeRecCat);
+  list.innerHTML = filtered.map(r=>`<div class="rec-card">
+    <span class="rec-tag ${TAG_CLS[r.tag]}">${TAG_LABELS[r.tag]}</span>
+    <div class="rec-name">${r.n}</div>
+    <div class="rec-desc">${r.tip}</div>
+  </div>`).join('');
+}
+
+function filterRec(c){ activeRecCat=c; renderRecs(); }
+
+function renderSummary(){
+  const el = document.getElementById('summary-content');
+  const allItems = [];
+  for(let i=0;i<guestCount;i++){
+    const gen = guestGenders[i]||'';
+    const icon = gen==='m'?'👨':gen==='f'?'👩':'👤';
+    const items = orders[i]||[];
+    if(items.length) allItems.push({icon,num:i+1,items});
+  }
+  if(!allItems.length){
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--color-text-secondary);font-size:14px">заказ пуст</div>';
+    return;
+  }
+  el.innerHTML = `<div class="summary-box">`+allItems.map(g=>
+    `<div class="summary-row"><span>${g.icon} Гость ${g.num}</span><span>${g.items.join(', ')}</span></div>`
+  ).join('')+`</div>`;
+}
+
+function clearAll(){
+  orders={};
+  guestGenders=guestGenders.map(()=>'');
+  renderGuests();
+  renderOrderRows();
+  renderSummary();
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.input-wrap'))
+    document.querySelectorAll('.suggestions').forEach(s=>s.style.display='none');
+});
+
+renderGuests();
+renderOrderRows();
+</script>
